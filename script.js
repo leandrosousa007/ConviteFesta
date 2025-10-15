@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnFecharModal = document.querySelector('.fechar-modal');
     const inputFoto = document.getElementById('input-foto');
     const previewFoto = document.getElementById('preview-foto');
-    const btnAcaoPresenca = document.getElementById('btn-acao-presenca'); // Botão principal
+    const btnAcaoPresenca = document.getElementById('btn-acao-presenca');
     const btnEnviarConfirmacao = document.getElementById('btn-enviar-confirmacao');
     
     // Elementos de display
@@ -19,19 +19,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Variáveis de estado
     let nomeVerificado = '';
-    let arquivoFoto = null;
     let listaDeConvidados = [];
+    // MUDANÇA AQUI: Esta variável vai guardar a foto já pronta para envio.
+    let fotoBase64 = null; 
 
     // --- FUNÇÕES AUXILIARES ---
 
-    // Função para capitalizar a primeira letra de cada nome
     const capitalizarNomes = (str) => {
         return str.toLowerCase().split(' ').map(palavra => 
             palavra.charAt(0).toUpperCase() + palavra.slice(1)
         ).join(' ');
     };
 
-    // Carrega a lista de convidados do JSON
     fetch('convidados.json')
         .then(response => response.json())
         .then(data => {
@@ -45,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- LÓGICA PRINCIPAL ---
 
-    // 1. Verifica o nome do convidado
     btnVerificar.addEventListener('click', async () => {
         const nomeFormatado = capitalizarNomes(inputNome.value.trim());
         
@@ -54,29 +52,28 @@ document.addEventListener('DOMContentLoaded', () => {
             msgErro.classList.add('hidden');
             
             mostrarTela(telaConvite);
-            await carregarConfirmados(); // Espera carregar para saber o status
+            await carregarConfirmados();
         } else {
             msgErro.classList.remove('hidden');
         }
     });
     
-    // 2. Lógica do botão de Ação (Confirmar ou Cancelar)
     btnAcaoPresenca.addEventListener('click', () => {
         const acao = btnAcaoPresenca.textContent;
 
         if (acao === 'Confirmar Presença') {
+            // MUDANÇA AQUI: Limpamos seleções anteriores ao abrir o modal
+            fotoBase64 = null;
+            inputFoto.value = null; // Limpa o seletor de arquivo
+            previewFoto.classList.add('hidden');
             modalFoto.classList.add('ativa');
         } else if (acao === 'Cancelar Presença') {
             cancelarPresenca();
         }
     });
 
-    // 3. Função para cancelar a presença
     const cancelarPresenca = async () => {
-        if (!confirm('Tem certeza que deseja cancelar sua presença?')) {
-            return;
-        }
-
+        if (!confirm('Tem certeza que deseja cancelar sua presença?')) return;
         btnAcaoPresenca.textContent = 'Cancelando...';
         btnAcaoPresenca.disabled = true;
 
@@ -88,53 +85,64 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) throw new Error('Falha ao cancelar.');
-
             alert('Sua presença foi cancelada.');
-            await carregarConfirmados(); // Atualiza a lista e o status do botão
-
+            await carregarConfirmados();
         } catch (error) {
             alert('Erro ao cancelar a presença. Tente novamente.');
             console.error(error);
         }
     };
 
-    // 4. Envia a confirmação final para a API (via Modal)
+    // MUDANÇA AQUI: A lógica de ler o arquivo foi movida para cá
+    inputFoto.addEventListener('change', (event) => {
+        if (event.target.files && event.target.files[0]) {
+            const arquivo = event.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                // Mostra a pré-visualização
+                previewFoto.src = e.target.result;
+                previewFoto.classList.remove('hidden');
+                // Guarda a foto já convertida na nossa variável
+                fotoBase64 = e.target.result.split(',')[1];
+            };
+
+            reader.readAsDataURL(arquivo);
+        }
+    });
+
+    // MUDANÇA AQUI: Este evento agora está muito mais simples
     btnEnviarConfirmacao.addEventListener('click', async () => {
-        if (!nomeVerificado || !arquivoFoto) {
-            alert('Por favor, selecione uma foto antes de confirmar.');
+        // A verificação agora é na variável que já tem a foto pronta
+        if (!fotoBase64) {
+            alert('Por favor, selecione uma foto.');
             return;
         }
 
         btnEnviarConfirmacao.textContent = 'Enviando...';
         btnEnviarConfirmacao.disabled = true;
 
-        const reader = new FileReader();
-        reader.readAsDataURL(arquivoFoto);
-        reader.onloadend = async () => {
-            const base64Image = reader.result.split(',')[1];
-            try {
-                const response = await fetch('/api/confirmar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome: nomeVerificado, foto: base64Image })
-                });
+        try {
+            const response = await fetch('/api/confirmar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome: nomeVerificado, foto: fotoBase64 })
+            });
 
-                if (!response.ok) throw new Error((await response.json()).message);
-                
-                alert('Presença confirmada com sucesso!');
-                modalFoto.classList.remove('ativa');
-                await carregarConfirmados();
+            if (!response.ok) throw new Error((await response.json()).message);
+            
+            alert('Presença confirmada com sucesso!');
+            modalFoto.classList.remove('ativa');
+            await carregarConfirmados();
 
-            } catch (error) {
-                alert('Erro: ' + error.message);
-            } finally {
-                btnEnviarConfirmacao.textContent = 'Enviar e Confirmar';
-                btnEnviarConfirmacao.disabled = false;
-            }
-        };
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        } finally {
+            btnEnviarConfirmacao.textContent = 'Enviar e Confirmar';
+            btnEnviarConfirmacao.disabled = false;
+        }
     });
 
-    // 5. Função para buscar e exibir os confirmados (E ATUALIZAR O BOTÃO)
     async function carregarConfirmados() {
         try {
             const response = await fetch(`confirmados.json?v=${new Date().getTime()}`);
@@ -153,14 +161,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            // ATUALIZA O ESTADO DO BOTÃO
             const jaConfirmado = confirmados.some(p => p.nome === nomeVerificado);
             if (jaConfirmado) {
                 btnAcaoPresenca.textContent = 'Cancelar Presença';
-                btnAcaoPresenca.style.backgroundColor = '#c0392b'; // Um tom de vermelho
+                btnAcaoPresenca.style.backgroundColor = '#c0392b';
             } else {
                 btnAcaoPresenca.textContent = 'Confirmar Presença';
-                btnAcaoPresenca.style.backgroundColor = '#8A2BE2'; // Roxo padrão
+                btnAcaoPresenca.style.backgroundColor = '#8A2BE2';
             }
             btnAcaoPresenca.disabled = false;
 
@@ -169,6 +176,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Fechar modal
     btnFecharModal.addEventListener('click', () => modalFoto.classList.remove('ativa'));
 });
