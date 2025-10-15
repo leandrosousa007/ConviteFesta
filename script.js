@@ -1,9 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Elementos das telas
+    // Telas principais
     const telaVerificacao = document.getElementById('tela-verificacao');
-    const telaFoto = document.getElementById('tela-foto');
     const telaConvite = document.getElementById('tela-convite');
 
+    // Elementos do Modal
+    const modalFoto = document.getElementById('modal-foto');
+    const btnFecharModal = document.querySelector('.fechar-modal');
+    
     // Botões e Inputs
     const btnVerificar = document.getElementById('btn-verificar');
     const inputNome = document.getElementById('input-nome');
@@ -11,43 +14,58 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const inputFoto = document.getElementById('input-foto');
     const previewFoto = document.getElementById('preview-foto');
-    const btnIrConvite = document.getElementById('btn-ir-convite');
-    const nomeConvidadoSpan = document.getElementById('nome-convidado');
-
-    const btnConfirmar = document.getElementById('btn-confirmar');
+    
+    const btnAbrirModal = document.getElementById('btn-abrir-modal-confirmacao');
+    const btnEnviarConfirmacao = document.getElementById('btn-enviar-confirmacao');
+    
     const containerConfirmados = document.getElementById('container-confirmados');
 
+    // Variáveis de estado
     let nomeVerificado = '';
     let arquivoFoto = null;
+    let listaDeConvidados = [];
 
     // Carrega a lista de convidados do nosso arquivo JSON
-    let listaDeConvidados = [];
     fetch('convidados.json')
         .then(response => response.json())
         .then(data => {
             listaDeConvidados = data.map(nome => nome.toLowerCase());
         });
 
-    // Função para navegar entre as telas
+    // Função para navegar entre as telas principais
     function mostrarTela(tela) {
         document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
         tela.classList.add('ativa');
     }
 
-    // Lógica da verificação de nome
+    // --- FLUXO PRINCIPAL ---
+
+    // 1. Verifica o nome do convidado
     btnVerificar.addEventListener('click', () => {
         const nomeDigitado = inputNome.value.trim().toLowerCase();
         if (listaDeConvidados.includes(nomeDigitado)) {
-            nomeVerificado = inputNome.value.trim(); // Guardamos o nome com maiúsculas/minúsculas originais
-            nomeConvidadoSpan.textContent = nomeVerificado;
+            nomeVerificado = inputNome.value.trim(); // Guarda o nome original
             msgErro.classList.add('hidden');
-            mostrarTela(telaFoto);
+            
+            // Vai para a tela do convite e já carrega a lista de confirmados
+            mostrarTela(telaConvite);
+            carregarConfirmados();
         } else {
             msgErro.classList.remove('hidden');
         }
     });
-    
-    // Lógica do preview da foto
+
+    // 2. Botão "Confirmar Presença" abre o modal de foto
+    btnAbrirModal.addEventListener('click', () => {
+        modalFoto.classList.add('ativa');
+    });
+
+    // 3. Fecha o modal
+    btnFecharModal.addEventListener('click', () => {
+        modalFoto.classList.remove('ativa');
+    });
+
+    // 4. Prepara a foto para o upload
     inputFoto.addEventListener('change', (event) => {
         if (event.target.files && event.target.files[0]) {
             arquivoFoto = event.target.files[0];
@@ -60,31 +78,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Lógica para ir para o convite
-    btnIrConvite.addEventListener('click', () => {
-        if (!arquivoFoto) {
-            alert('Por favor, selecione uma foto.');
-            return;
-        }
-        carregarConfirmados();
-        mostrarTela(telaConvite);
-    });
-
-    // Lógica de confirmação de presença (chama a API)
-    btnConfirmar.addEventListener('click', async () => {
+    // 5. Envia a confirmação final para a API
+    btnEnviarConfirmacao.addEventListener('click', async () => {
         if (!nomeVerificado || !arquivoFoto) {
-            alert('Ocorreu um erro. Por favor, recomece.');
+            alert('Por favor, selecione uma foto antes de confirmar.');
             return;
         }
 
-        btnConfirmar.textContent = 'Enviando...';
-        btnConfirmar.disabled = true;
+        btnEnviarConfirmacao.textContent = 'Enviando...';
+        btnEnviarConfirmacao.disabled = true;
 
-        // Precisamos converter a imagem para base64 para enviar via JSON
         const reader = new FileReader();
         reader.readAsDataURL(arquivoFoto);
         reader.onloadend = async () => {
-            const base64Image = reader.result.split(',')[1]; // Pega só o código da imagem
+            const base64Image = reader.result.split(',')[1];
 
             try {
                 const response = await fetch('/api/confirmar', {
@@ -96,18 +103,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                 });
 
-                if (response.ok) {
-                    alert('Presença confirmada com sucesso!');
-                    carregarConfirmados(); // Atualiza a lista na tela
-                } else {
+                if (!response.ok) {
                     const error = await response.json();
                     throw new Error(error.message || 'Falha ao confirmar presença.');
                 }
+                
+                alert('Presença confirmada com sucesso!');
+                modalFoto.classList.remove('ativa'); // Fecha o modal
+                btnAbrirModal.textContent = 'Presença Confirmada!'; // Muda o texto do botão principal
+                btnAbrirModal.disabled = true;
+                carregarConfirmados(); // Atualiza a lista na tela
 
             } catch (error) {
                 alert('Erro: ' + error.message);
-            } finally {
-                btnConfirmar.textContent = 'Presença Confirmada!';
+                btnEnviarConfirmacao.textContent = 'Enviar e Confirmar';
+                btnEnviarConfirmacao.disabled = false;
             }
         };
     });
@@ -115,28 +125,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para buscar e exibir os confirmados
     async function carregarConfirmados() {
         try {
-            const response = await fetch('confirmados.json?cache-buster=' + new Date().getTime()); // Evita cache
+            // Adiciona um parâmetro aleatório para evitar que o navegador use uma versão antiga (cache) do arquivo
+            const response = await fetch(`confirmados.json?v=${new Date().getTime()}`);
             const confirmados = await response.json();
             
-            containerConfirmados.innerHTML = ''; // Limpa a lista antes de adicionar
+            containerConfirmados.innerHTML = ''; 
             
-            confirmados.forEach(pessoa => {
-                const perfilDiv = document.createElement('div');
-                perfilDiv.className = 'perfil-confirmado';
-                
-                const img = document.createElement('img');
-                img.src = pessoa.fotoUrl;
-                
-                const p = document.createElement('p');
-                p.textContent = pessoa.nome;
+            if (confirmados.length === 0) {
+                containerConfirmados.innerHTML = '<p>Seja o primeiro a confirmar!</p>';
+            } else {
+                confirmados.forEach(pessoa => {
+                    const perfilDiv = document.createElement('div');
+                    perfilDiv.className = 'perfil-confirmado';
+                    
+                    const img = document.createElement('img');
+                    img.src = pessoa.fotoUrl;
+                    img.alt = `Foto de ${pessoa.nome}`;
+                    
+                    const p = document.createElement('p');
+                    p.textContent = pessoa.nome;
 
-                perfilDiv.appendChild(img);
-                perfilDiv.appendChild(p);
-                containerConfirmados.appendChild(perfilDiv);
-            });
+                    perfilDiv.appendChild(img);
+                    perfilDiv.appendChild(p);
+                    containerConfirmados.appendChild(perfilDiv);
+                });
+            }
 
         } catch (error) {
             console.error('Não foi possível carregar a lista de confirmados.', error);
+            containerConfirmados.innerHTML = '<p>Não foi possível carregar a lista no momento.</p>';
         }
     }
 });

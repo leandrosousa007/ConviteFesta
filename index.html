@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Você foi convidado!</title>
+    <title>Convite: Noite de Jogos & Pizza!</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,40 +12,44 @@
         <h1>Qual é o seu nome?</h1>
         <input type="text" id="input-nome" placeholder="Digite seu nome completo">
         <button id="btn-verificar">Entrar</button>
-        <p id="msg-erro" class="hidden">Desculpe, seu nome não está na lista.</p>
-    </div>
-
-    <div id="tela-foto" class="tela">
-        <h2>Olá, <span id="nome-convidado"></span>!</h2>
-        <p>Para confirmar, precisamos de uma foto sua para a lista de presença.</p>
-        <input type="file" id="input-foto" accept="image/*">
-        <img id="preview-foto" src="#" alt="Pré-visualização da sua foto" class="hidden"/>
-        <button id="btn-ir-convite">Continuar para o Convite</button>
+        <p id="msg-erro" class="hidden">Desculpe, seu nome não está na lista de convidados.</p>
     </div>
 
     <div id="tela-convite" class="tela">
         <header>
-            <h1>É com grande alegria que te convidamos!</h1>
+            <h1>🍕 Você está convidado para a nossa Noite de Jogos & Pizza! 🎲</h1>
         </header>
         
         <main>
             <section class="detalhes-evento">
-                <h2>Para o Evento X</h2>
-                <p><strong>Data:</strong> XX de Outubro de 2025</p>
-                <p><strong>Horário:</strong> A partir das 20h00</p>
+                <h2>Prepare seus dados e seu apetite!</h2>
+                <p>Junte-se a nós para uma noite épica de estratégia, blefes, risadas e, claro, muita pizza.</p>
+                <p><strong>Data:</strong> Sábado, 25 de Outubro de 2025</p>
+                <p><strong>Horário:</strong> A partir das 19h00</p>
                 <p><strong>Local:</strong> Rua Fictícia, 123 - Bairro Imaginário</p>
-                <p>Aqui você coloca mais detalhes sobre o evento, o que esperar, etc.</p>
             </section>
             
-            <button id="btn-confirmar">Confirmar Presença</button>
+            <button id="btn-abrir-modal-confirmacao">Confirmar Presença</button>
 
             <section class="lista-confirmados">
-                <h2>Pessoas Confirmadas</h2>
+                <h2>Jogadores Confirmados</h2>
                 <div id="container-confirmados">
                     </div>
             </section>
         </main>
     </div>
+    
+    <div id="modal-foto" class="modal">
+        <div class="modal-conteudo">
+            <span class="fechar-modal">&times;</span>
+            <h2>Só falta um detalhe!</h2>
+            <p>Para aparecer na lista de jogadores, precisamos de uma foto sua.</p>
+            <input type="file" id="input-foto" accept="image/*">
+            <img id="preview-foto" src="#" alt="Sua foto" class="hidden"/>
+            <button id="btn-enviar-confirmacao">Enviar e Confirmar</button>
+        </div>
+    </div>
+
 
     <script src="script.js"></script>
 </body>
