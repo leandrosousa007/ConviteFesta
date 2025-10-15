@@ -144,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function carregarConfirmados() {
+        containerConfirmados.innerHTML = '<p>Carregando lista de jogadores...</p>';
         try {
             const response = await fetch(`confirmados.json?v=${new Date().getTime()}`);
             const confirmados = await response.json();
