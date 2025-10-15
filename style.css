@@ -1,0 +1,102 @@
+/* Estilos Gerais e Tema */
+body {
+    background-color: #000000;
+    color: #FFFFFF;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Estrutura das Telas */
+.tela {
+    display: none; /* Todas as telas começam escondidas */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 40px);
+}
+
+.tela.ativa {
+    display: flex; /* A tela ativa é mostrada */
+}
+
+.hidden {
+    display: none;
+}
+
+/* Elementos do Formulário */
+input[type="text"], input[type="file"] {
+    width: 80%;
+    padding: 12px;
+    margin: 15px 0;
+    background-color: #222;
+    border: 1px solid #8A2BE2; /* Roxo */
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+}
+
+button {
+    background-color: #8A2BE2; /* Roxo */
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #6a1b9a; /* Roxo mais escuro */
+}
+
+/* Títulos e Textos */
+h1 {
+    color: #FFFFFF;
+}
+
+h2 {
+    color: #8A2BE2; /* Roxo */
+}
+
+/* Seção de Confirmação */
+#preview-foto {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #8A2BE2;
+    margin-bottom: 20px;
+}
+
+.lista-confirmados {
+    margin-top: 50px;
+    width: 100%;
+}
+
+#container-confirmados {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+.perfil-confirmado {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.perfil-confirmado img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.perfil-confirmado p {
+    margin-top: 5px;
+    font-size: 14px;
+}

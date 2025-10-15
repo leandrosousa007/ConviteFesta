@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Você foi convidado!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="tela-verificacao" class="tela ativa">
+        <h1>Qual é o seu nome?</h1>
+        <input type="text" id="input-nome" placeholder="Digite seu nome completo">
+        <button id="btn-verificar">Entrar</button>
+        <p id="msg-erro" class="hidden">Desculpe, seu nome não está na lista.</p>
+    </div>
+
+    <div id="tela-foto" class="tela">
+        <h2>Olá, <span id="nome-convidado"></span>!</h2>
+        <p>Para confirmar, precisamos de uma foto sua para a lista de presença.</p>
+        <input type="file" id="input-foto" accept="image/*">
+        <img id="preview-foto" src="#" alt="Pré-visualização da sua foto" class="hidden"/>
+        <button id="btn-ir-convite">Continuar para o Convite</button>
+    </div>
+
+    <div id="tela-convite" class="tela">
+        <header>
+            <h1>É com grande alegria que te convidamos!</h1>
+        </header>
+        
+        <main>
+            <section class="detalhes-evento">
+                <h2>Para o Evento X</h2>
+                <p><strong>Data:</strong> XX de Outubro de 2025</p>
+                <p><strong>Horário:</strong> A partir das 20h00</p>
+                <p><strong>Local:</strong> Rua Fictícia, 123 - Bairro Imaginário</p>
+                <p>Aqui você coloca mais detalhes sobre o evento, o que esperar, etc.</p>
+            </section>
+            
+            <button id="btn-confirmar">Confirmar Presença</button>
+
+            <section class="lista-confirmados">
+                <h2>Pessoas Confirmadas</h2>
+                <div id="container-confirmados">
+                    </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
