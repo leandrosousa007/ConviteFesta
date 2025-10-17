@@ -210,8 +210,9 @@ p {
 .video-responsive {
     position: relative;
     overflow: hidden;
-    padding-top: 56.25%; /* Proporção 16:9 */
-    border: 2px solid #8A2BE2;
+    /* Proporção 9:16 (16 dividido por 9 = 1.777...) */
+    padding-top: 177.78%; 
+    border: 2px solid #8A2BE2; /* Borda roxa para combinar */
     border-radius: 8px;
 }
 
