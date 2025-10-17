@@ -1,8 +1,8 @@
-/* Estilos Gerais e Tema */
+/* --- ESTILOS GERAIS E TEMA --- */
 body {
     background-color: #000000;
     color: #FFFFFF;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Lato', sans-serif; /* Fonte nova */
     margin: 0;
     padding: 20px;
     text-align: center;
@@ -18,13 +18,16 @@ body::before {
     z-index: -1;
 }
 
-/* Estrutura das Telas */
+/* --- ESTRUTURA DAS TELAS --- */
 .tela {
     display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: calc(100vh - 40px);
+    width: 100%;
+    max-width: 600px; /* Limita a largura em telas maiores */
+    margin: 0 auto;
 }
 
 .tela.ativa {
@@ -35,16 +38,17 @@ body::before {
     display: none !important;
 }
 
-/* Elementos do Formulário */
+/* --- FORMULÁRIOS E BOTÕES --- */
 input[type="text"], input[type="file"] {
-    width: 80%;
-    padding: 12px;
+    width: 90%;
+    padding: 14px;
     margin: 15px 0;
-    background-color: #222;
+    background-color: #1a1a1a;
     border: 1px solid #8A2BE2;
-    border-radius: 5px;
+    border-radius: 8px;
     color: white;
     font-size: 16px;
+    font-family: 'Lato', sans-serif;
 }
 
 button {
@@ -52,35 +56,72 @@ button {
     color: white;
     padding: 15px 30px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 18px;
+    font-weight: 700;
+    font-family: 'Montserrat', sans-serif; /* Fonte nova */
     cursor: pointer;
-    transition: transform 0.2s ease, background-color 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
     margin-top: 10px;
+    box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4); /* Sombra nova */
 }
 
 button:hover {
-    background-color: #6a1b9a;
     transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(138, 43, 226, 0.6); /* Sombra mais forte */
 }
 
-/* Títulos e Textos */
+button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    transform: scale(1);
+    box-shadow: none;
+}
+
+/* --- TÍTULOS E TEXTOS --- */
+h1, h2 {
+    font-family: 'Montserrat', sans-serif; /* Fonte nova */
+}
+
 h1 {
     color: #FFFFFF;
-    text-shadow: 0 0 5px #8A2BE2;
+    text-shadow: 0 0 10px #8A2BE2; /* Sombra mais forte */
+    font-size: 2.2rem;
 }
 
 h2 {
     color: #8A2BE2;
+    border-bottom: 2px solid #8A2BE2;
+    padding-bottom: 5px;
+    display: inline-block;
 }
 
-.detalhes-evento p {
+p {
     line-height: 1.6;
+    font-size: 1.1rem;
 }
 
-/* --- ESTILOS DO MODAL DE CONFIRMAÇÃO --- */
+#msg-erro {
+    color: #ff4d4d;
+    font-weight: 700;
+}
+
+/* --- SEÇÕES DE CONTEÚDO (MELHORADAS) --- */
+.detalhes-evento,
+.lista-confirmados,
+.video-container {
+    width: 95%;
+    margin-top: 40px; /* Mais espaçamento */
+    padding: 20px;
+    background-color: #111; /* Fundo levemente diferente */
+    border: 1px solid #333; /* Borda sutil */
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.2); /* Brilho roxo */
+}
+
+/* --- MODAL DE CONFIRMAÇÃO --- */
 .modal {
-    display: none; /* Começa escondido */
+    display: none;
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -109,6 +150,7 @@ h2 {
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-shadow: 0 0 25px rgba(138, 43, 226, 0.5);
 }
 
 .fechar-modal {
@@ -134,12 +176,7 @@ h2 {
     margin-bottom: 20px;
 }
 
-/* --- Seção de Confirmados --- */
-.lista-confirmados {
-    margin-top: 50px;
-    width: 100%;
-}
-
+/* --- SEÇÃO DE CONFIRMADOS --- */
 #container-confirmados {
     display: flex;
     flex-wrap: wrap;
@@ -152,6 +189,7 @@ h2 {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 90px;
 }
 
 .perfil-confirmado img {
@@ -159,9 +197,28 @@ h2 {
     height: 80px;
     border-radius: 50%;
     object-fit: cover;
+    border: 2px solid #8A2BE2;
 }
 
 .perfil-confirmado p {
     margin-top: 5px;
     font-size: 14px;
+    word-wrap: break-word; /* Garante que nomes longos não quebrem o layout */
+}
+
+/* --- SEÇÃO DE VÍDEO --- */
+.video-responsive {
+    position: relative;
+    overflow: hidden;
+    padding-top: 56.25%; /* Proporção 16:9 */
+    border: 2px solid #8A2BE2;
+    border-radius: 8px;
+}
+
+.video-responsive iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
